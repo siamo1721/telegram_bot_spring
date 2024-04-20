@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1713567311602-1
+      author: siamo (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_jokes
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: joke
+                  type: VARCHAR(255)
+              - column:
+                  name: time_created
+                  type: DATE
+              - column:
+                  name: time_updated
+                  type: DATE
+            tableName: jokes
+  - changeSet:
+      id: 1713567311602-2
+      author: siamo (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_jokes_history
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: joke_id
+                  type: BIGINT
+              - column:
+                  name: date
+                  type: DATETIME
+            tableName: jokes_history
+
+
+  - changeSet:
+      id: 1713567311602-3
+      author: siamo (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: joke_id
+            baseTableName: jokes_history
+            constraintName: FK_JOKES_HISTORY_ON_JOKE
+            referencedColumnNames: id
+            referencedTableName: jokes
+
