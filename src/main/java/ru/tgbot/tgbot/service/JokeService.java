@@ -15,6 +15,8 @@ public interface JokeService {
 
     Optional<Joke> getJokesById(Long id);
     // В интерфейсе JokeService
-    List<JokeCall> getJokeCallsByJokeId(Long id);
+    List<Joke> getTopJokes();
+    List<JokeCall> getJokeCallsByJokeId(Long id, Long userId);
+
 
 }

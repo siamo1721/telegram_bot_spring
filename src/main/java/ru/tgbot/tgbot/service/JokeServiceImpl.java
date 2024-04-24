@@ -10,6 +10,7 @@ import ru.tgbot.tgbot.repository.JokeRepository;
 import ru.tgbot.tgbot.model.Joke;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -77,6 +78,7 @@ public class JokeServiceImpl implements JokeService {
             throw new IllegalArgumentException("Шутка с id=" + id + " не найдена");
         }
     }
+
     @Override
     public Joke deleteJoke(Joke deletedJoke) {
         Optional<Joke> existingJoke = jokeRepository.findById(deletedJoke.getId());
@@ -87,10 +89,42 @@ public class JokeServiceImpl implements JokeService {
             throw new NoSuchElementException("Шутка с " + deletedJoke.getId() + " ID не найдена");
         }
     }
+
     @Override
-    public List<JokeCall> getJokeCallsByJokeId(Long id) {
-        return jokeCallRepository.findByJokeId(id);
+    public List<JokeCall> getJokeCallsByJokeId(Long id, Long userId) {
+        // Получение списка вызовов анекдота по идентификатору шутки
+        List<JokeCall> jokeCalls = jokeCallRepository.findByJokeId(id);
+
+        // Создание записи о вызове анекдота
+        JokeCall jokeCall = new JokeCall();
+        jokeCall.setJoke(jokeRepository.findById(id).orElse(null)); // Устанавливаем анекдот по его id
+        jokeCall.setUserId(userId); // Устанавливаем id пользователя
+        jokeCall.setCallTime(LocalDateTime.now()); // Устанавливаем текущее время
+
+        // Сохранение записи о вызове анекдота
+        jokeCallRepository.save(jokeCall);
+
+        return jokeCalls;
     }
+
+    @Override
+    public List<Joke> getTopJokes() {
+        // Получаем все анекдоты из репозитория
+
+
+            // Получаем все анекдоты из репозитория
+            List<Joke> allJokes = jokeRepository.findAll();
+
+            // Сортируем анекдоты по количеству вызовов в убывающем порядке
+            allJokes.sort(Comparator.comparingInt(Joke::getCalls).reversed());
+
+            // Выбираем первые пять анекдотов (если их количество больше 5)
+            return allJokes.subList(0, Math.min(5, allJokes.size()));
+        }
+
+
+
+
 
 }
 

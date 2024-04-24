@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface JokeRepository extends JpaRepository<Joke, Long> {
     // Метод для получения шутки по её ID
     Optional<Joke> findById(Long id);
+    List<Joke> findAll();
 
     // Метод для удаления шутки по её ID
     void deleteById(Long id);

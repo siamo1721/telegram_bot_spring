@@ -5,12 +5,14 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "joke_calls")
 @Table(name = "joke_calls")
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@Builder
 public class JokeCall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

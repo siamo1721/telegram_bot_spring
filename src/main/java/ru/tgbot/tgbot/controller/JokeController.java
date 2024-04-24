@@ -57,10 +57,20 @@ public class JokeController {
     public ResponseEntity<List<JokeCall>> getJokeCallsByJokeId(@PathVariable("id") Long id) {
         Optional<Joke> joke = jokeService.getJokesById(id);
         if (joke.isPresent()) {
-            List<JokeCall> jokeCalls = jokeService.getJokeCallsByJokeId(id);
+            // Генерируем userId (ваша логика генерации userId)
+            Long userId = 1L; // Пример генерации userId
+
+            List<JokeCall> jokeCalls = jokeService.getJokeCallsByJokeId(id, userId);
+
             return ResponseEntity.ok(jokeCalls);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/top")
+    public ResponseEntity<List<Joke>> getTopJokes() {
+        List<Joke> topJokes = jokeService.getTopJokes();
+        return ResponseEntity.ok(topJokes);
+    }
+
 }
