@@ -13,6 +13,5 @@ public interface JokeRepository extends JpaRepository<Joke, Long> {
 
     // Метод для удаления шутки по её ID
     void deleteById(Long id);
-
-
+    
 }

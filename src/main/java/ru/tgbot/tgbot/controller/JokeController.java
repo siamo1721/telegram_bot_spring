@@ -57,11 +57,8 @@ public class JokeController {
     public ResponseEntity<List<JokeCall>> getJokeCallsByJokeId(@PathVariable("id") Long id) {
         Optional<Joke> joke = jokeService.getJokesById(id);
         if (joke.isPresent()) {
-            // Генерируем userId (ваша логика генерации userId)
-            Long userId = 1L; // Пример генерации userId
-
+            Long userId = 1L;
             List<JokeCall> jokeCalls = jokeService.getJokeCallsByJokeId(id, userId);
-
             return ResponseEntity.ok(jokeCalls);
         } else {
             return ResponseEntity.notFound().build();
