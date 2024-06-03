@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.tgbot.tgbot.model.JokeCall;
-import ru.tgbot.tgbot.model.JokeHistory;
 import ru.tgbot.tgbot.repository.JokeCallRepository;
 import ru.tgbot.tgbot.repository.JokeRepository;
 import ru.tgbot.tgbot.model.Joke;
@@ -12,6 +11,7 @@ import ru.tgbot.tgbot.model.Joke;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @Service
@@ -26,10 +26,8 @@ public class JokeServiceImpl implements JokeService {
         try {
             newJoke.setTimeCreated(LocalDate.now());
             newJoke.setTimeUpdated(LocalDate.now());
-            if (newJoke.getJokeHistory() == null) {
-                newJoke.setJokeHistory(new ArrayList<>());
-            }
-            newJoke.getJokeHistory().add(new JokeHistory(null, newJoke, new Date()));
+            newJoke.setCalls(0);
+
 
             Joke savedJoke = jokeRepository.saveAndFlush(newJoke);
 
@@ -38,8 +36,6 @@ public class JokeServiceImpl implements JokeService {
             e.printStackTrace();
             return Optional.empty();
         }
-
-
     }
 
     @Override
@@ -49,26 +45,23 @@ public class JokeServiceImpl implements JokeService {
 
     @Override
     public Optional<Joke> getJokesById(Long id) {
-        List<Joke> allJokes = getAllJokes();
-        return allJokes.stream()
-                .filter(joke -> joke.getId().equals(id))
-                .findFirst();
+        Optional<Joke> jokeOptional = jokeRepository.findById(id);
+        jokeOptional.ifPresent(joke -> {
+            joke.setCalls(joke.getCalls() + 1);
+            jokeRepository.save(joke);
+        });
+        return jokeOptional;
     }
 
     @Override
     public Joke updateJoke(Long id, Joke joke) {
-        // Проверяем, существует ли шутка с данным id
         if (jokeRepository.existsById(id)) {
-            // Получаем текущую шутку по id
             Optional<Joke> existingJokeOptional = jokeRepository.findById(id);
             if (existingJokeOptional.isPresent()) {
                 Joke existingJoke = existingJokeOptional.get();
 
-                // Обновляем данные шутки
                 existingJoke.setJoke(joke.getJoke());
-                existingJoke.setTimeUpdated(LocalDate.now()); // Обновляем дату обновления
-
-                // Сохраняем обновленную шутку
+                existingJoke.setTimeUpdated(LocalDate.now());
 
                 return jokeRepository.save(existingJoke);
             } else {
@@ -92,35 +85,50 @@ public class JokeServiceImpl implements JokeService {
 
     @Override
     public List<JokeCall> getJokeCallsByJokeId(Long id, Long userId) {
-        // Получение списка вызовов анекдота по идентификатору шутки
-        List<JokeCall> jokeCalls = jokeCallRepository.findByJokeId(id);
+        Joke joke = jokeRepository.findById(id).orElse(null);
+        if (joke == null) {
+            return new ArrayList<>();
+        }
 
-        // Создание записи о вызове анекдота
+        joke.setCalls(joke.getCalls() + 1);
+        jokeRepository.save(joke);
+
         JokeCall jokeCall = new JokeCall();
-        jokeCall.setJoke(jokeRepository.findById(id).orElse(null)); // Устанавливаем анекдот по его id
-        jokeCall.setUserId(userId); // Устанавливаем id пользователя
-        jokeCall.setCallTime(LocalDateTime.now()); // Устанавливаем текущее время
-
-        // Сохранение записи о вызове анекдота
+        jokeCall.setJoke(joke);
+        jokeCall.setUserId(userId);
+        jokeCall.setCallTime(LocalDateTime.now());
         jokeCallRepository.save(jokeCall);
 
-        return jokeCalls;
+        return jokeCallRepository.findByJokeId(id);
     }
+
 
     @Override
     public List<Joke> getTopJokes() {
-        // Получаем все анекдоты из репозитория
+        return jokeRepository.findTop5Jokes();
+    }
+    @Override
+    public Joke getRandomJoke() {
+        Joke randomJoke = jokeRepository.findRandomJoke();
+        if (randomJoke != null) {
+            randomJoke.setCalls(randomJoke.getCalls() + 1);
+            jokeRepository.save(randomJoke);
 
+            Long userId = generateUserId();
 
-            // Получаем все анекдоты из репозитория
-            List<Joke> allJokes = jokeRepository.findAll();
-
-            // Сортируем анекдоты по количеству вызовов в убывающем порядке
-            allJokes.sort(Comparator.comparingInt(Joke::getCalls).reversed());
-
-            // Выбираем первые пять анекдотов (если их количество больше 5)
-            return allJokes.subList(0, Math.min(5, allJokes.size()));
+            JokeCall jokeCall = JokeCall.builder()
+                    .joke(randomJoke)
+                    .userId(userId)
+                    .callTime(LocalDateTime.now())
+                    .build();
+            jokeCallRepository.save(jokeCall);
         }
+        return randomJoke;
+    }
+
+    private Long generateUserId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
+    }
 
 
 

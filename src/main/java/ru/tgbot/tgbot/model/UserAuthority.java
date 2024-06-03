@@ -3,9 +3,9 @@ package ru.tgbot.tgbot.model;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum UserAuthority implements GrantedAuthority {
-    prava,
-    bezprav,
-    normprav;
+    admin,
+    manager,
+    user;
 
     @Override
     public String getAuthority() {

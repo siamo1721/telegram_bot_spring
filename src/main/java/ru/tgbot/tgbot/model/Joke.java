@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,8 +11,8 @@ import java.util.List;
 @Setter
 @ToString
 @Builder
-@Entity(name = "jokes") //Объявляем класс как сущность для работы с ним в БД и его имя
-@Table(name = "jokes") //Помечаем, как называется таблица в БД
+@Entity(name = "jokes")
+@Table(name = "jokes")
 public class Joke {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "jokes_seq")
@@ -33,7 +32,6 @@ public class Joke {
     @Column(name = "timeUpdated")
     private LocalDate timeUpdated;
 
-    @OneToMany(mappedBy = "joke",cascade = CascadeType.ALL)
-    private List<JokeHistory> jokeHistory;
+
 
 }

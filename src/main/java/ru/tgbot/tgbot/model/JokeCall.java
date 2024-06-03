@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 public class JokeCall {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "jokes_calls_seq")
+    @SequenceGenerator(name = "jokes_calls_seq", sequenceName = "jokes_calls_sequence", initialValue = 1 ,allocationSize = 1)
     private Long id;
 
     @ManyToOne

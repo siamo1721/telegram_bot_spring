@@ -1,5 +1,6 @@
 package ru.tgbot.tgbot.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +21,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRolesRepository userRolesRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    @Transactional
     @Override
     public void registration(String username, String password) {
         if (userRepository.findByUsername(username).isEmpty()) {
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                             .setExpired(false)
                             .setEnabled(true)
             );
-            userRolesRepository.save(new UserRole(null, UserAuthority.bezprav, user));
+            userRolesRepository.save(new UserRole(null, UserAuthority.manager, user));
         }
         else {
             throw new UsernameAlreadyExistsException();

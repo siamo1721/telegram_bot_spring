@@ -3,11 +3,13 @@ package ru.tgbot.tgbot.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tgbot.tgbot.model.Joke;
 import ru.tgbot.tgbot.model.JokeCall;
 import ru.tgbot.tgbot.service.JokeService;
-import ru.tgbot.tgbot.model.Joke;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("Jokes")
@@ -29,7 +31,7 @@ public class JokeController {
     }
 
     @PostMapping
-    public ResponseEntity addNewJoke(@RequestBody Joke newJoke) {
+    public ResponseEntity<Joke> addNewJoke(@RequestBody Joke newJoke) {
         Optional<Joke> savedJoke = jokeService.addNewJoke(newJoke);
         return savedJoke.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.badRequest().build());
@@ -38,7 +40,6 @@ public class JokeController {
     @PutMapping("/{id}")
     public ResponseEntity<Joke> updateJoke(@PathVariable Long id, @RequestBody Joke updatedJoke) {
         Joke updatedJokes = jokeService.updateJoke(id, updatedJoke);
-
         return ResponseEntity.ok(updatedJokes);
     }
 
@@ -53,21 +54,28 @@ public class JokeController {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/{id}/calls")
-    public ResponseEntity<List<JokeCall>> getJokeCallsByJokeId(@PathVariable("id") Long id) {
-        Optional<Joke> joke = jokeService.getJokesById(id);
-        if (joke.isPresent()) {
-            Long userId = 1L;
-            List<JokeCall> jokeCalls = jokeService.getJokeCallsByJokeId(id, userId);
-            return ResponseEntity.ok(jokeCalls);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
     @GetMapping("/top")
     public ResponseEntity<List<Joke>> getTopJokes() {
         List<Joke> topJokes = jokeService.getTopJokes();
         return ResponseEntity.ok(topJokes);
     }
 
+    @GetMapping("/random")
+    public ResponseEntity<Joke> getRandomJoke() {
+        Joke randomJoke = jokeService.getRandomJoke();
+        return ResponseEntity.ok(randomJoke);
+    }
+    @GetMapping("/calls/{id}")
+    public ResponseEntity<List<JokeCall>> getJokeCallsByJokeId(@PathVariable("id") Long id) {
+        Long userId = generateUserId();
+        List<JokeCall> jokeCalls = jokeService.getJokeCallsByJokeId(id, userId);
+        return ResponseEntity.ok(jokeCalls);
+    }
+
+    private Long generateUserId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
+    }
 }
+
+

@@ -21,12 +21,14 @@ public class SpringSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(expressionInterceptUrlRegistry ->
                         expressionInterceptUrlRegistry
-                                .requestMatchers("/registration", "/login", "/top").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/Jokes").hasAuthority(UserAuthority.bezprav.getAuthority())
-                                .requestMatchers(HttpMethod.GET, "/Jokes/**").hasAuthority(UserAuthority.normprav.getAuthority())
-                                .requestMatchers(HttpMethod.DELETE, "/Jokes").hasAuthority(UserAuthority.normprav.getAuthority())
-                                .requestMatchers(HttpMethod.PUT, "/Jokes").hasAuthority(UserAuthority.normprav.getAuthority())
-                                .anyRequest().hasAuthority(UserAuthority.prava.getAuthority()))
+                                .requestMatchers("/registration", "/login").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/Jokes/**").hasAuthority(UserAuthority.manager.getAuthority())
+                                .requestMatchers(HttpMethod.PUT, "/Jokes/**").hasAuthority(UserAuthority.manager.getAuthority())
+                                .requestMatchers(HttpMethod.GET, "/top").hasAnyAuthority(UserAuthority.user.getAuthority(),UserAuthority.manager.getAuthority() )
+                                .requestMatchers(HttpMethod.GET, "/Jokes/**").hasAnyAuthority(UserAuthority.user.getAuthority(),UserAuthority.manager.getAuthority() )
+                                .requestMatchers(HttpMethod.GET, "/Jokes/calls/**").hasAnyAuthority(UserAuthority.user.getAuthority(),UserAuthority.manager.getAuthority() )
+                                .requestMatchers(HttpMethod.POST, "/Jokes/**").hasAuthority(UserAuthority.manager.getAuthority())
+                                .anyRequest().hasAuthority(UserAuthority.admin.getAuthority()))
                 .formLogin(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable);
 
