@@ -3,23 +3,20 @@ package ru.tgbot.tgbot.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.tgbot.tgbot.model.JokeCall;
-import ru.tgbot.tgbot.repository.JokeCallRepository;
-import ru.tgbot.tgbot.repository.JokeRepository;
 import ru.tgbot.tgbot.model.Joke;
+import ru.tgbot.tgbot.model.JokeCall;
+import ru.tgbot.tgbot.repository.JokeRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 @Service
 @RequiredArgsConstructor
 public class JokeServiceImpl implements JokeService {
     private final JokeRepository jokeRepository;
-    private final JokeCallRepository jokeCallRepository;
-
+    private final JokeCallService jokeCallService;
 
     @Override
     public Optional<Joke> addNewJoke(@RequestBody Joke newJoke) {
@@ -27,7 +24,6 @@ public class JokeServiceImpl implements JokeService {
             newJoke.setTimeCreated(LocalDate.now());
             newJoke.setTimeUpdated(LocalDate.now());
             newJoke.setCalls(0);
-
 
             Joke savedJoke = jokeRepository.saveAndFlush(newJoke);
 
@@ -45,12 +41,7 @@ public class JokeServiceImpl implements JokeService {
 
     @Override
     public Optional<Joke> getJokesById(Long id) {
-        Optional<Joke> jokeOptional = jokeRepository.findById(id);
-        jokeOptional.ifPresent(joke -> {
-            joke.setCalls(joke.getCalls() + 1);
-            jokeRepository.save(joke);
-        });
-        return jokeOptional;
+        return jokeRepository.findById(id);
     }
 
     @Override
@@ -90,30 +81,25 @@ public class JokeServiceImpl implements JokeService {
             return new ArrayList<>();
         }
 
-        joke.setCalls(joke.getCalls() + 1);
-        jokeRepository.save(joke);
+        JokeCall jokeCall = JokeCall.builder()
+                .joke(joke)
+                .userId(userId)
+                .callTime(LocalDateTime.now())
+                .build();
+        jokeCallService.createJokeCall(jokeCall);
 
-        JokeCall jokeCall = new JokeCall();
-        jokeCall.setJoke(joke);
-        jokeCall.setUserId(userId);
-        jokeCall.setCallTime(LocalDateTime.now());
-        jokeCallRepository.save(jokeCall);
-
-        return jokeCallRepository.findByJokeId(id);
+        return jokeCallService.getJokeCallsByJokeId(id);
     }
-
 
     @Override
     public List<Joke> getTopJokes() {
         return jokeRepository.findTop5Jokes();
     }
+
     @Override
     public Joke getRandomJoke() {
         Joke randomJoke = jokeRepository.findRandomJoke();
         if (randomJoke != null) {
-            randomJoke.setCalls(randomJoke.getCalls() + 1);
-            jokeRepository.save(randomJoke);
-
             Long userId = generateUserId();
 
             JokeCall jokeCall = JokeCall.builder()
@@ -121,7 +107,7 @@ public class JokeServiceImpl implements JokeService {
                     .userId(userId)
                     .callTime(LocalDateTime.now())
                     .build();
-            jokeCallRepository.save(jokeCall);
+            jokeCallService.createJokeCall(jokeCall);
         }
         return randomJoke;
     }
@@ -129,19 +115,4 @@ public class JokeServiceImpl implements JokeService {
     private Long generateUserId() {
         return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
     }
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
