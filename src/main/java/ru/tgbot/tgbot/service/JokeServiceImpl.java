@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.tgbot.tgbot.model.Joke;
-import ru.tgbot.tgbot.model.JokeCall;
 import ru.tgbot.tgbot.repository.JokeRepository;
 
 import java.time.LocalDate;
@@ -73,17 +72,8 @@ public class JokeServiceImpl implements JokeService {
     }
 
     @Override
-    public List<JokeCall> getJokeCallsByJokeId(Long id, Long userId) {
-        return jokeCallService.JokeCallsByJokeId(id, userId);
-    }
-
-    @Override
     public List<Joke> getTopJokes() {
         return jokeRepository.findTop5Jokes();
     }
 
-    @Override
-    public Joke getRandomJoke() {
-        return jokeCallService.getRandomJoke();
-    }
 }

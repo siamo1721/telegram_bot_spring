@@ -1,7 +1,6 @@
 package ru.tgbot.tgbot.service;
 
 import ru.tgbot.tgbot.model.Joke;
-import ru.tgbot.tgbot.model.JokeCall;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +12,4 @@ public interface JokeService {
     Joke deleteJoke(Joke jokeToDelete );
     Optional<Joke> getJokesById(Long id);
     List<Joke> getTopJokes();
-    List<JokeCall> getJokeCallsByJokeId(Long id, Long userId);
-    Joke getRandomJoke();
 }
