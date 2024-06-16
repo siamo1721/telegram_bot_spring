@@ -23,9 +23,6 @@ public class Joke {
     @Column(name = "joke")
     private String joke;
 
-    @Column(name = "calls")
-    private int calls;
-
     @Column(name = "timeCreated")
     private LocalDate timeCreated;
 

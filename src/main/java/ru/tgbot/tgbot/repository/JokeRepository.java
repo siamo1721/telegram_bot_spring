@@ -10,10 +10,7 @@ import java.util.Optional;
 public interface JokeRepository extends JpaRepository<Joke, Long> {
     Optional<Joke> findById(Long id);
     List<Joke> findAll();
-
     void deleteById(Long id);
-    @Query(value = "SELECT * FROM jokes ORDER BY calls DESC LIMIT 5", nativeQuery = true)
-    List<Joke> findTop5Jokes();
     @Query(value = "SELECT * FROM jokes ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
     Joke findRandomJoke();
 }

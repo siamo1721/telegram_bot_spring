@@ -16,59 +16,37 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequestMapping("Jokes")
 @RequiredArgsConstructor
 public class JokeController {
-    private final JokeService jokeService;
     private final JokeCallService jokeCallService;
+    private final JokeService jokeService;
 
     @GetMapping
     public ResponseEntity<List<Joke>> getAllJokes() {
-        List<Joke> jokes = jokeService.getAllJokes();
-        return ResponseEntity.ok(jokes);
+        return ResponseEntity.ok(jokeService.getAllJokes());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Joke> getJokeById(@PathVariable("id") Long id) {
-        Optional<Joke> joke = Optional.ofNullable(jokeCallService.getJokeById(id));
-        return joke.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Joke joke = jokeCallService.getJokeById(id);
+        return joke != null ? ResponseEntity.ok(joke) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/top")
+    public ResponseEntity<List<Joke>> getTopJokes() {
+        List<Joke> topJokes = jokeCallService.getTop5Jokes();
+        return ResponseEntity.ok(topJokes);
+    }
+
+    @GetMapping("/random")
+    public ResponseEntity<Joke> getRandomJoke() {
+        Joke randomJoke = jokeService.getRandomJoke();
+        return ResponseEntity.ok(randomJoke);
+    }
     @PostMapping
     public ResponseEntity<Joke> addNewJoke(@RequestBody Joke newJoke) {
         Optional<Joke> savedJoke = jokeService.addNewJoke(newJoke);
         return savedJoke.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Joke> updateJoke(@PathVariable Long id, @RequestBody Joke updatedJoke) {
-        Joke updatedJokes = jokeService.updateJoke(id, updatedJoke);
-        return ResponseEntity.ok(updatedJokes);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Joke> deleteJoke(@PathVariable Long id) {
-        Optional<Joke> deleteToJoke = jokeService.getJokesById(id);
-        if (deleteToJoke.isPresent()) {
-            Joke jokeToDelete = deleteToJoke.get();
-            Joke deleteJoke = jokeService.deleteJoke(jokeToDelete);
-            return ResponseEntity.ok(deleteJoke);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/top")
-    public ResponseEntity<List<Joke>> getTopJokes() {
-        List<Joke> topJokes = jokeService.getTopJokes();
-        return ResponseEntity.ok(topJokes);
-    }
-
-    @GetMapping("/random")
-    public ResponseEntity<Joke> getRandomJoke() {
-        Joke randomJoke = jokeCallService.getRandomJoke();
-        return ResponseEntity.ok(randomJoke);
-    }
-
     @GetMapping("/calls/{id}")
     public ResponseEntity<List<JokeCall>> getJokeCallsByJokeId(@PathVariable("id") Long id) {
         Long userId = generateUserId();

@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tgbot.tgbot.model.Joke;
 import ru.tgbot.tgbot.repository.JokeRepository;
+import ru.tgbot.tgbot.service.JokeCallService;
 import ru.tgbot.tgbot.service.JokeService;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import java.util.Random;
 @Service
 public class TgbotService extends TelegramLongPollingBot {
     private final JokeService jokeService;
+    private final JokeCallService jokeCallService;
 
     @Value("${telegram.bot.name}")
     private String botName;
@@ -96,7 +98,7 @@ public class TgbotService extends TelegramLongPollingBot {
     }
 
     public void sendTop5Jokes(long chatId) {
-        List<Joke> top5Jokes = jokeService.getTopJokes();
+        List<Joke> top5Jokes = jokeCallService.getTop5Jokes();
 
         if (top5Jokes.isEmpty()) {
             sendMessage(chatId, "No jokes available.");
@@ -137,7 +139,6 @@ public class TgbotService extends TelegramLongPollingBot {
         newJoke.setJoke(jokeText);
         newJoke.setTimeCreated(LocalDate.now());
         newJoke.setTimeUpdated(LocalDate.now());
-        newJoke.setCalls(0);
         jokeService.addNewJoke(newJoke);
         sendMessage(chatId, "Шутка успешно добавлена!");
     }

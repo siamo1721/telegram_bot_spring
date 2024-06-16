@@ -8,8 +8,7 @@ import java.util.List;
 public interface JokeCallService {
     List<JokeCall> getJokeCallsByJokeId(Long jokeId);
     JokeCall createJokeCall(JokeCall jokeCall);
-    void JokeCallCount(Long jokeId);
     Joke getJokeById(Long id);
-    Joke getRandomJoke();
     List<JokeCall> JokeCallsByJokeId(Long jokeId, Long userId);
+    List<Joke> getTop5Jokes();
 }

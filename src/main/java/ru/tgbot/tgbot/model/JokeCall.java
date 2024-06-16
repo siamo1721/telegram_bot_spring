@@ -14,19 +14,19 @@ import java.time.LocalDateTime;
 @ToString
 @Builder
 public class JokeCall {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "jokes_calls_seq")
-    @SequenceGenerator(name = "jokes_calls_seq", sequenceName = "jokes_calls_sequence", initialValue = 1 ,allocationSize = 1)
+    @SequenceGenerator(name = "jokes_calls_seq", sequenceName = "jokes_calls_sequence", initialValue = 1, allocationSize = 1)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "joke_id")
+    @JoinColumn(name = "joke_id", nullable = false)
     private Joke joke;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "call_time")
+    @Column(name = "call_time", nullable = false)
     private LocalDateTime callTime;
 }
-

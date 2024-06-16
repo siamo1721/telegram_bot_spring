@@ -26,46 +26,14 @@ public class JokeCallServiceImpl implements JokeCallService {
 
     @Override
     public JokeCall createJokeCall(JokeCall jokeCall) {
-        JokeCall savedJokeCall = jokeCallRepository.save(jokeCall);
-        JokeCallCount(jokeCall.getJoke().getId());
-        return savedJokeCall;
-    }
-
-    @Override
-    public void JokeCallCount(Long jokeId) {
-        jokeRepository.findById(jokeId).ifPresent(joke -> {
-            joke.setCalls(joke.getCalls() + 1);
-            jokeRepository.save(joke);
-        });
+        return jokeCallRepository.save(jokeCall);
     }
 
     @Override
     public Joke getJokeById(Long id) {
-        Optional<Joke> joke = jokeRepository.findById(id);
-        joke.ifPresent(j -> {
-            j.setCalls(j.getCalls() + 1);
-            jokeRepository.save(j);
-        });
-        return joke.orElse(null);
+        return jokeRepository.findById(id).orElse(null);
     }
 
-    @Override
-    public Joke getRandomJoke() {
-        Joke randomJoke = jokeRepository.findRandomJoke();
-        if (randomJoke != null) {
-            randomJoke.setCalls(randomJoke.getCalls() + 1);
-            jokeRepository.save(randomJoke);
-
-            Long userId = generateUserId();
-            JokeCall jokeCall = JokeCall.builder()
-                    .joke(randomJoke)
-                    .userId(userId)
-                    .callTime(LocalDateTime.now())
-                    .build();
-            jokeCallRepository.save(jokeCall);
-        }
-        return randomJoke;
-    }
 
     @Override
     public List<JokeCall> JokeCallsByJokeId(Long jokeId, Long userId) {
@@ -82,6 +50,11 @@ public class JokeCallServiceImpl implements JokeCallService {
         createJokeCall(jokeCall);
 
         return getJokeCallsByJokeId(jokeId);
+    }
+
+    @Override
+    public List<Joke> getTop5Jokes() {
+        return jokeCallRepository.findTop5Jokes();
     }
 
     private Long generateUserId() {

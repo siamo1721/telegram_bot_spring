@@ -10,6 +10,8 @@ public interface JokeService {
     Joke updateJoke(Long id, Joke joke);
     Optional<Joke> addNewJoke(Joke json);
     Joke deleteJoke(Joke jokeToDelete );
+
+    Joke getRandomJoke();
+
     Optional<Joke> getJokesById(Long id);
-    List<Joke> getTopJokes();
 }
